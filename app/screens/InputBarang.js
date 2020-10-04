@@ -1,7 +1,7 @@
-import React, {useState} from 'react';
-import {Alert, Modal, Text, TouchableOpacity, View} from 'react-native';
-import {Picker} from '@react-native-community/picker';
-import {ScrollView, TextInput} from 'react-native-gesture-handler';
+import React, { useState } from 'react';
+import { Alert, Modal, Text, TouchableOpacity, View } from 'react-native';
+import { Picker } from '@react-native-community/picker';
+import { FlatList, ScrollView, TextInput } from 'react-native-gesture-handler';
 import Feather from 'react-native-vector-icons/Feather';
 
 const Item = (props) => {
@@ -17,37 +17,101 @@ const Item = (props) => {
         marginBottom: 10,
       }}>
       <View>
-        <Text>Aqua Galon</Text>
-        <Text style={{color: '#6EDB5A'}}>{'\u2B24'} Grosir</Text>
+        <Text style={{ fontSize: 18, paddingBottom: 10 }}>{props.namaBarang}</Text>
+        <Text style={{ fontSize: 16, color: '#6EDB5A', paddingBottom: 3 }}>{'\u2B24'} {props.tipe}</Text>
       </View>
-      <Text style={{fontWeight: 'bold'}}>Rp. 25.000</Text>
-      <View style={{flexDirection: 'row'}}>
-        <Feather
-          name="edit"
-          size={20}
-          color="black"
-          style={{
-            backgroundColor: '#9f9',
-            borderRadius: 5,
-            padding: 3,
-            marginRight: 10,
-          }}
-        />
-        <Feather
-          name="trash"
-          size={20}
-          color="black"
-          style={{backgroundColor: '#f99', borderRadius: 5, padding: 3}}
-        />
+      <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{props.harga}</Text>
+      <View style={{ flexDirection: 'row' }}>
+        <TouchableOpacity onPress={() => pressHandler(item.key)}>
+          <Feather
+            name="edit"
+            size={20}
+            color="black"
+            style={{
+              backgroundColor: '#9f9',
+              borderRadius: 5,
+              padding: 3,
+              marginRight: 10,
+            }}
+          />{props.item, pressHandler}
+        </TouchableOpacity>
+        <TouchableOpacity>
+          <Feather
+            name="trash"
+            size={20}
+            color="black"
+            style={{ backgroundColor: '#f99', borderRadius: 5, padding: 3 }}
+          ></Feather>
+        </TouchableOpacity>
       </View>
     </View>
   );
 };
 
-const InputBarang = ({navigation}) => {
+const InputBarang = ({ navigation }) => {
   const [modalToggle, setModalToggle] = useState(false);
+  const [inputBarang, setNamaBarang] = useState('namaBarang');
+  const [inputTipe, setInputTipe] = useState('tipe');
+  const [inputHarga, setInputHarga] = useState('harga');
+
+  const [dataBarang, setDataBarang] = useState([
+    {
+      key: '1',
+      namaBarang: 'Aqua Galon',
+      tipe: 'Grosir',
+      harga: '25.000',
+    },
+    {
+      key: '2',
+      namaBarang: 'Aqua Gelas',
+      tipe: 'Eceran',
+      harga: '35.000',
+    }
+  ]);
+
+  const [tempData, setTempData] = useState(dataBarang);
+
+  const [value, onChangeText] = React.useState('Useless Placeholder');
+
+  const searchHandler = (val) => {
+    setTempData(
+      dataBarang.filter((item) => {
+        return item.namaBarang.toLowerCase().includes(val.toLowerCase());
+      }),
+    );
+  };
+
+  const inputHandler = () => {
+    setTempData((prevBarang) => {
+      return [
+        {
+          namaBarang: inputBarang,
+          tipe: inputTipe,
+          harga: inputHarga,
+          key: Math.random().toString(),
+        },
+        ...prevBarang,
+      ];
+    });
+    setNamaBarang('');
+    setInputHarga('');
+    setInputTipe('');
+    setModalToggle(false);
+    navigation.navigate('SucceesScreen', {
+      kembali: () => {
+        navigation.navigate('InputBarang');
+      },
+    });
+  };
+
+  const pressHandler = (key) => {
+    setDataBarang((prevBarang) => {
+      return prevBarang.filter(todo => todo.key != key);
+    });
+  };
+
   return (
-    <View style={{flex: 1, padding: 20, backgroundColor: '#fff'}}>
+    <View style={{ flex: 1, padding: 20, backgroundColor: '#fff' }}>
       <Modal visible={modalToggle} animationType="fade" transparent={true}>
         <View
           style={{
@@ -72,26 +136,37 @@ const InputBarang = ({navigation}) => {
               }}>
               Input Barang
             </Text>
-            <View style={{paddingVertical: 10}}>
-              <View style={{marginBottom: 10}}>
-                <Text style={{fontWeight: 'bold'}}>Nama Barang :</Text>
-                <TextInput style={{borderBottomWidth: 1, paddingVertical: 2}} />
+            <View style={{ paddingVertical: 10 }}>
+              <View style={{ marginBottom: 10 }}>
+                <Text style={{ fontWeight: 'bold' }}>Nama Barang :</Text>
+                <TextInput style={{ borderBottomWidth: 1, paddingVertical: 2 }}
+                  onChangeText={(val) => {
+                    setNamaBarang(val);
+                  }} />
               </View>
 
-              <View style={{marginBottom: 10}}>
-                <Text style={{fontWeight: 'bold'}}>Harga :</Text>
-                <TextInput style={{borderBottomWidth: 1, padding: 5}} />
+              <View style={{ marginBottom: 10 }}>
+                <Text style={{ fontWeight: 'bold' }}>Harga :</Text>
+                <TextInput style={{ borderBottomWidth: 1, padding: 5 }} onChangeText={(val) => {
+                  setInputHarga(val);
+                }} />
               </View>
 
-              <Text style={{fontWeight: 'bold'}}>Tipe :</Text>
-              <Picker>
+              <Text style={{ fontWeight: 'bold' }}>Tipe :</Text>
+              <Picker
+                selectedValue={inputTipe}
+                onValueChange={(itemValue, itemIndex) => {
+                  setInputTipe(itemValue);
+                }}>
                 <Picker.Item label="Grosir" value="Grosir" />
-                <Picker.Item label="Ecerean" value="Eceran" />
+                <Picker.Item label="Eceran" value="Eceran" />
               </Picker>
+              {/*Text to show selected picker value*/}
+              <Text>Selected Value: {inputTipe}</Text>
             </View>
 
             <View
-              style={{flexDirection: 'row', justifyContent: 'space-between'}}>
+              style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
               <TouchableOpacity
                 onPress={() => {
                   setModalToggle(false);
@@ -107,12 +182,7 @@ const InputBarang = ({navigation}) => {
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={() => {
-                  setModalToggle(false);
-                  navigation.navigate('SucceesScreen', {
-                    kembali: () => {
-                      navigation.navigate('InputBarang');
-                    },
-                  });
+                  inputHandler();
                 }}>
                 <Text
                   style={{
@@ -157,17 +227,20 @@ const InputBarang = ({navigation}) => {
             borderRadius: 20,
             borderWidth: 1,
           }}>
-          <Feather name="search" size={20} style={{paddingHorizontal: 15}} />
+          <Feather name="search" size={20} style={{ paddingHorizontal: 15 }} />
 
-          <TextInput style={{flex: 1, paddingRight: 15}} />
+          <TextInput style={{ flex: 1, paddingRight: 15 }}
+            placeholder="Cari data barang"
+            onChangeText={searchHandler} />
         </View>
       </View>
 
-      <ScrollView>
-        <Item />
-        <Item />
-      </ScrollView>
-    </View>
+      <FlatList
+        data={tempData} renderItem={({ item }) => (
+          <Item namaBarang={item.namaBarang} tipe={item.inputTipe} harga={item.harga} item={item} pressHandler={pressHandler} />
+        )}
+      />
+    </View >
   );
 };
 
