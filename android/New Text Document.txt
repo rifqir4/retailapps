@@ -1,0 +1,1 @@
+sdk.dir = C:/Users/Masruri/AppData/Local/Android/sdk
