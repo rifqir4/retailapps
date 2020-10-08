@@ -30,23 +30,27 @@ const Item = (props) => {
       </View>
 
       <View style={{flexDirection: 'row'}}>
-        <Feather
-          name="edit"
-          size={20}
-          color="black"
-          style={{
-            backgroundColor: '#9f9',
-            borderRadius: 5,
-            padding: 3,
-            marginRight: 10,
-          }}
-        />
-        <Feather
-          name="trash"
-          size={20}
-          color="black"
-          style={{backgroundColor: '#f99', borderRadius: 5, padding: 3}}
-        />
+        <TouchableOpacity onPress={props.edit}>
+          <Feather
+            name="edit"
+            size={20}
+            color="black"
+            style={{
+              backgroundColor: '#9f9',
+              borderRadius: 5,
+              padding: 3,
+              marginRight: 10,
+            }}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity onPress={props.delete}>
+          <Feather
+            name="trash"
+            size={20}
+            color="black"
+            style={{backgroundColor: '#f99', borderRadius: 5, padding: 3}}
+          />
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -54,9 +58,9 @@ const Item = (props) => {
 
 const InputPelanggan = ({navigation}) => {
   const [modalToggle, setModalToggle] = useState(false);
-  const [inputNama, setInputNama] = useState('nama');
-  const [inputAlamat, setInputAlamat] = useState('Alamat');
-  const [inputTelp, setInputTelp] = useState('Telp');
+  const [inputNama, setInputNama] = useState(' ');
+  const [inputAlamat, setInputAlamat] = useState(' ');
+  const [inputTelp, setInputTelp] = useState(' ');
 
   const [pelanggan, setPelanggan] = useState([
     {
@@ -75,6 +79,7 @@ const InputPelanggan = ({navigation}) => {
 
   const [tempData, setTempData] = useState(pelanggan);
 
+  const [editData, setEditData] = useState();
   const [value, onChangeText] = React.useState('Useless Placeholder');
 
   const searchHandler = (val) => {
@@ -105,6 +110,20 @@ const InputPelanggan = ({navigation}) => {
       kembali: () => {
         navigation.navigate('InputPelanggan');
       },
+    });
+  };
+
+  const editHandler = (data) => {
+    setInputNama(data.nama);
+    setInputAlamat(data.alamat);
+    setInputTelp(data.telp);
+
+    setModalToggle(true);
+  };
+
+  const deleteHandler = (key) => {
+    setTempData((prevData) => {
+      return prevData.filter((item) => item.key != key);
     });
   };
 
@@ -142,6 +161,7 @@ const InputPelanggan = ({navigation}) => {
                   onChangeText={(val) => {
                     setInputNama(val);
                   }}
+                  value={inputNama}
                 />
               </View>
 
@@ -152,6 +172,7 @@ const InputPelanggan = ({navigation}) => {
                   onChangeText={(val) => {
                     setInputAlamat(val);
                   }}
+                  value={inputAlamat}
                 />
               </View>
 
@@ -167,6 +188,7 @@ const InputPelanggan = ({navigation}) => {
                   onChangeText={(val) => {
                     setInputTelp(val);
                   }}
+                  value={inputTelp}
                 />
               </View>
             </View>
@@ -210,6 +232,9 @@ const InputPelanggan = ({navigation}) => {
         }}>
         <TouchableOpacity
           onPress={() => {
+            setInputNama('');
+            setInputAlamat('');
+            setInputTelp('');
             setModalToggle(true);
           }}>
           <Text
@@ -245,7 +270,17 @@ const InputPelanggan = ({navigation}) => {
       <FlatList
         data={tempData}
         renderItem={({item}) => (
-          <Item nama={item.nama} alamat={item.alamat} telp={item.telp} />
+          <Item
+            nama={item.nama}
+            alamat={item.alamat}
+            telp={item.telp}
+            edit={() => {
+              editHandler(item);
+            }}
+            delete={() => {
+              deleteHandler(item.key);
+            }}
+          />
         )}
       />
     </View>
