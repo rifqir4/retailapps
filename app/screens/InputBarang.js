@@ -17,12 +17,16 @@ const Item = (props) => {
         marginBottom: 10,
       }}>
       <View>
-        <Text style={{ fontSize: 18, paddingBottom: 10 }}>{props.namaBarang}</Text>
-        <Text style={{ fontSize: 16, color: '#6EDB5A', paddingBottom: 3 }}>{'\u2B24'} {props.tipe}</Text>
+        <Text style={{ fontSize: 18, paddingBottom: 10 }}>
+          {props.namaBarang}
+        </Text>
+        <Text style={{ fontSize: 16, color: '#6EDB5A', paddingBottom: 3 }}>
+          {'\u2B24'} {props.tipe}
+        </Text>
       </View>
-      <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{props.harga}</Text>
+      <Text style={{ fontWeight: 'bold', fontSize: 16 }}>Rp. {props.harga}</Text>
       <View style={{ flexDirection: 'row' }}>
-        <TouchableOpacity >
+        <TouchableOpacity>
           <Feather
             name="edit"
             size={20}
@@ -40,8 +44,13 @@ const Item = (props) => {
             name="trash"
             size={20}
             color="black"
-            style={{ backgroundColor: '#f99', borderRadius: 5, padding: 3 }}
-          ></Feather>
+            style={{
+              backgroundColor: '#f99',
+              borderRadius: 5,
+              padding: 3,
+            }}
+            onPress={props.delete}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -66,7 +75,7 @@ const InputBarang = ({ navigation }) => {
       namaBarang: 'Aqua Gelas',
       tipe: 'Eceran',
       harga: '35.000',
-    }
+    },
   ]);
 
   const [tempData, setTempData] = useState(dataBarang);
@@ -104,6 +113,12 @@ const InputBarang = ({ navigation }) => {
     });
   };
 
+  const deleteHandler = (key) => {
+    setTempData((prevData) => {
+      return prevData.filter((item) => item.key != key);
+    });
+  };
+
   return (
     <View style={{ flex: 1, padding: 20, backgroundColor: '#fff' }}>
       <Modal visible={modalToggle} animationType="fade" transparent={true}>
@@ -133,17 +148,22 @@ const InputBarang = ({ navigation }) => {
             <View style={{ paddingVertical: 10 }}>
               <View style={{ marginBottom: 10 }}>
                 <Text style={{ fontWeight: 'bold' }}>Nama Barang :</Text>
-                <TextInput style={{ borderBottomWidth: 1, paddingVertical: 2 }}
+                <TextInput
+                  style={{ borderBottomWidth: 1, paddingVertical: 2 }}
                   onChangeText={(val) => {
                     setNamaBarang(val);
-                  }} />
+                  }}
+                />
               </View>
 
               <View style={{ marginBottom: 10 }}>
                 <Text style={{ fontWeight: 'bold' }}>Harga :</Text>
-                <TextInput style={{ borderBottomWidth: 1, padding: 5 }} onChangeText={(val) => {
-                  setInputHarga(val);
-                }} />
+                <TextInput
+                  style={{ borderBottomWidth: 1, padding: 5 }}
+                  onChangeText={(val) => {
+                    setInputHarga(val);
+                  }}
+                />
               </View>
 
               <Text style={{ fontWeight: 'bold' }}>Tipe :</Text>
@@ -223,18 +243,28 @@ const InputBarang = ({ navigation }) => {
           }}>
           <Feather name="search" size={20} style={{ paddingHorizontal: 15 }} />
 
-          <TextInput style={{ flex: 1, paddingRight: 15 }}
+          <TextInput
+            style={{ flex: 1, paddingRight: 15 }}
             placeholder="Cari data barang"
-            onChangeText={searchHandler} />
+            onChangeText={searchHandler}
+          />
         </View>
       </View>
 
       <FlatList
-        data={tempData} renderItem={({ item }) => (
-          <Item namaBarang={item.namaBarang} tipe={item.inputTipe} harga={item.harga} />
+        data={tempData}
+        renderItem={({ item }) => (
+          <Item
+            namaBarang={item.namaBarang}
+            tipe={item.tipe}
+            harga={item.harga}
+            delete={() => {
+              deleteHandler(item.key);
+            }}
+          />
         )}
       />
-    </View >
+    </View>
   );
 };
 
