@@ -22,7 +22,7 @@ const Item = (props) => {
       </View>
       <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{props.harga}</Text>
       <View style={{ flexDirection: 'row' }}>
-        <TouchableOpacity onPress={() => pressHandler(item.key)}>
+        <TouchableOpacity >
           <Feather
             name="edit"
             size={20}
@@ -33,7 +33,7 @@ const Item = (props) => {
               padding: 3,
               marginRight: 10,
             }}
-          />{props.item, pressHandler}
+          />
         </TouchableOpacity>
         <TouchableOpacity>
           <Feather
@@ -101,12 +101,6 @@ const InputBarang = ({ navigation }) => {
       kembali: () => {
         navigation.navigate('InputBarang');
       },
-    });
-  };
-
-  const pressHandler = (key) => {
-    setDataBarang((prevBarang) => {
-      return prevBarang.filter(todo => todo.key != key);
     });
   };
 
@@ -237,7 +231,7 @@ const InputBarang = ({ navigation }) => {
 
       <FlatList
         data={tempData} renderItem={({ item }) => (
-          <Item namaBarang={item.namaBarang} tipe={item.inputTipe} harga={item.harga} item={item} pressHandler={pressHandler} />
+          <Item namaBarang={item.namaBarang} tipe={item.inputTipe} harga={item.harga} />
         )}
       />
     </View >
