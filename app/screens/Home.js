@@ -6,11 +6,13 @@ import {
   View,
   Image,
   StatusBar,
+  Alert,
 } from 'react-native';
 import HomeMenu from '../components/HomeMenu';
 import Feather from 'react-native-vector-icons/Feather';
 
 export default function Home({navigation}) {
+
   return (
     <View style={styles.container}>
       <StatusBar style="auto" />
@@ -18,7 +20,7 @@ export default function Home({navigation}) {
         <Image source={require('../../assets/images/welcome.png')} />
         <Text
           style={{fontSize: 28, padding: 5, fontFamily: 'opensans-regular'}}>
-          Toko Ada Serbaguna
+          Toko Ada Serbagunaas
         </Text>
         <View>
           <View
