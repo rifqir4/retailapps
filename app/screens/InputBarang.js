@@ -6,21 +6,12 @@ import Feather from 'react-native-vector-icons/Feather';
 import Firebase from '../components/Firebase';
 
 const GenerateKey = () => {
-  var JakartaTime  = new Date().toLocaleString("en-US", {timeZone: "Asia/Jakarta"});
-  var Today  = new Date(JakartaTime);
+  var JakartaTime = new Date().toLocaleString('en-US', {
+    timeZone: 'Asia/Jakarta',
+  });
+  var Today = new Date(JakartaTime);
   return Today.getTime();
-}
-
-const GetBarang = () => {
-  let d = [];
-  Firebase.database().ref('barang').orderByKey().once('value', (data) => {
-    Object.keys(data.toJSON()).forEach(function (key) {
-      d.push(data.toJSON()[key]);
-    });
-  })
-
-  return d;
-}
+};
 
 const Item = (props) => {
   return (
@@ -76,14 +67,31 @@ const Item = (props) => {
 };
 
 const InputBarang = ({navigation}) => {
+  const [loadStatus, setLoadStatus] = useState(false);
+
+  const GetBarang = () => {
+    let d = [];
+    Firebase.database()
+      .ref('barang')
+      .orderByKey()
+      .once('value', (data) => {
+        Object.keys(data.toJSON()).forEach(function (key) {
+          d.push(data.toJSON()[key]);
+        });
+      })
+      .then(() => {
+        setLoadStatus(true);
+      });
+    return d;
+  };
+
   const [modalToggle, setModalToggle] = useState(false);
   const [inputBarang, setNamaBarang] = useState('namaBarang');
   const [inputTipe, setInputTipe] = useState('tipe');
   const [inputHarga, setInputHarga] = useState('harga');
-  
+  const [tempData, setTempData] = useState(GetBarang());
+
   const [dataBarang, setDataBarang] = useState(GetBarang());
-  
-  const [tempData, setTempData] = useState(dataBarang);
 
   const [value, onChangeText] = React.useState('Useless Placeholder');
 
@@ -98,52 +106,55 @@ const InputBarang = ({navigation}) => {
   const inputHandler = () => {
     const currentKey = String(GenerateKey());
     const inputData = {
-      key : currentKey,
+      key: String(currentKey),
       namaBarang: inputBarang,
       tipe: inputTipe,
-      harga: inputHarga
-    }
+      harga: inputHarga,
+    };
 
-    Firebase.database().ref("barang/"+currentKey).set(
-      inputData
-    ).then(()=>{
-      setTempData(GetBarang());
-      setNamaBarang('');
-      setInputHarga('');
-      setInputTipe('');
-      setModalToggle(false);
-      navigation.navigate('SucceesScreen', {
-        kembali: () => {
-          navigation.navigate('InputBarang');
-        },
+    Firebase.database()
+      .ref('barang/' + currentKey)
+      .set(inputData)
+      .then(() => {
+        setLoadStatus(false);
+        setTempData(GetBarang());
+        setNamaBarang('');
+        setInputHarga('');
+        setInputTipe('');
+        setModalToggle(false);
+        navigation.navigate('SucceesScreen', {
+          kembali: () => {
+            navigation.navigate('InputBarang');
+          },
+        });
       });
-    })
   };
 
   const deleteHandler = (key) => {
     Alert.alert(
-      "Anda Yakin Menghapus Item?",
-      "Item yang sudah dihapus tidak dapat dikemballikan lagi!!",
+      'Anda Yakin Menghapus Item?',
+      'Item yang sudah dihapus tidak dapat dikemballikan lagi!!',
       [
         {
-          text: "Batal",
-          style: "cancel"
+          text: 'Batal',
+          style: 'cancel',
         },
         {
-          text: "Yakin",
-          style: "default",
+          text: 'Yakin',
+          style: 'default',
           onPress: () => {
             setTempData((prevData) => {
               return prevData.filter((item) => item.key != key);
             });
-            Firebase.database().ref('barang/'+key).remove();
-          }
-        }
-      ]
-    )
+            Firebase.database()
+              .ref('barang/' + key)
+              .remove();
+          },
+        },
+      ],
+    );
   };
 
-    
   return (
     <View style={{flex: 1, padding: 20, backgroundColor: '#fff'}}>
       <Modal visible={modalToggle} animationType="fade" transparent={true}>
@@ -276,19 +287,25 @@ const InputBarang = ({navigation}) => {
         </View>
       </View>
 
-      <FlatList
-        data={tempData.sort((a, b) => { return b.namaBarang < a.namaBarang })}
-        renderItem={({item}) => (
-          <Item
-            namaBarang={item.namaBarang}
-            tipe={item.tipe}
-            harga={item.harga}
-            delete={() => {
-              deleteHandler(item.key);
-            }}
-          />
-        )}
-      />
+      {loadStatus ? (
+        <FlatList
+          data={tempData.sort((a, b) => {
+            return b.namaBarang < a.namaBarang;
+          })}
+          renderItem={({item}) => (
+            <Item
+              namaBarang={item.namaBarang}
+              tipe={item.tipe}
+              harga={item.harga}
+              delete={() => {
+                deleteHandler(item.key);
+              }}
+            />
+          )}
+        />
+      ) : (
+        <Text>Loading!!!</Text>
+      )}
     </View>
   );
 };
